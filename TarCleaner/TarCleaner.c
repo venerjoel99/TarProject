@@ -15,6 +15,12 @@ const char* leaked_strings[] = {
 "storing xattr user.inode_code_cache\n"
 };
 
+/**
+ * Find the string instance at a specific index
+ * @param str - the char array to match to
+ * @param index of the first character to compare
+ * @return 0 if it's a match, 1 if not
+ */
 int findStr(const char *str, int index){
     fseek(fp, index, SEEK_SET);
     int i;
@@ -27,6 +33,10 @@ int findStr(const char *str, int index){
     return 0;
 }
 
+/**
+ * Find the number of bytes in a file
+ * @return the size in bytes
+ */
 int findSize(){
     int size;
     fseek(fp, 0, SEEK_END);
@@ -36,63 +46,22 @@ int findSize(){
     return size;
 }
 
+/**
+ * Check for ustar indicator at a file index
+ * @param index of the first character to compare
+ * @return 0 if match, 1 if not
+ */
 int checkUstar(int index){
     return findStr("ustar  ", index);
 
 }
 
-/*
-UstarFile parseFile(int index){
-    UstarFile u;
-    fseek(fp, index, SEEK_SET);
-    fgets(u.fileName, sizeof u.fileName, fp);
-    fseek(fp, index + 100, SEEK_SET);
-    fgets(u.fileMode, sizeof u.fileMode, fp);
-    fseek(fp, index + 108, SEEK_SET);
-    fgets(u.ownerID, sizeof u.ownerID, fp);
-    fseek(fp, index + 116, SEEK_SET);
-    fgets(u.groupID, sizeof u.groupID, fp);
-    fseek(fp, index + 124, SEEK_SET);
-    fgets(u.fileSize, sizeof u.fileSize, fp);
-    fseek(fp, index + 136, SEEK_SET);
-    fgets(u.lastMod, sizeof u.lastMod, fp);
-    fseek(fp, index + 148, SEEK_SET);
-    fgets(u.checkSum, sizeof u.checkSum, fp);
-    fseek(fp, index + 157, SEEK_SET);
-    fgets(u.linkedFile, sizeof u.linkedFile, fp);
-    fseek(fp, index + 257, SEEK_SET);
-    fgets(u.indicator, sizeof u.indicator, fp);
-    fseek(fp, index + 265, SEEK_SET);
-    fgets(u.userName, sizeof u.userName, fp);
-    fseek(fp, index + 297, SEEK_SET);
-    fgets(u.groupName, sizeof u.groupName, fp);
-    fseek(fp, index + 329, SEEK_SET);
-    fgets(u.majorNum, sizeof u.majorNum, fp);
-    fseek(fp, index + 337, SEEK_SET);
-    fgets(u.minorNum, sizeof u.minorNum, fp);
-    fseek(fp, index + 345, SEEK_SET);
-    fgets(u.prefix, sizeof u.prefix, fp);
-    return u;
-}
-int printFile(UstarFile file){
-    printf("File: %s \n", file.fileName);
-    printf("Mode: %s \n", file.fileMode);
-    printf("Owner ID: %s \n", file.ownerID);
-    printf("Group ID: %s \n", file.groupID);
-    printf("Size: %s \n", file.fileSize);
-    printf("Last mod time: %s \n", file.lastMod);
-    printf("Check sum: %s \n", file.checkSum);
-    printf("Linked file: %s \n", file.linkedFile);
-    printf("Indicator: %s \n", file.indicator);
-    printf("Username: %s \n", file.userName);
-    printf("Group name: %s \n", file.groupName);
-    printf("Major number: %s \n", file.majorNum);
-    printf("Minor num: %s \n", file.minorNum);
-    printf("Prefix: %s \n", file.prefix);
-    return 0;
-}
-*/
-
+/**
+ * Parse the tar header file for info
+ * at a specific index
+ * @param index of the first byte of the header
+ * @return a data structure with file name and size
+ */
 header parseHeader(int index){
     header h;
     h.headerIndex = index;
@@ -108,6 +77,13 @@ header parseHeader(int index){
     return h;
 }
 
+/**
+ * Check for a leak starting at beginning the tar header file
+ * to the end of the file content
+ * @param index of the file's tar header
+ * @param tarSize physical size of the tar file in bytes
+ * @return 0 if there's a leak, 1 if no leak
+ */
 int leaking(int index, int tarSize){
     if (index < BLOCKSIZE && index > USTAR_INDEX){
         return true;
@@ -124,6 +100,13 @@ int leaking(int index, int tarSize){
     return false;
 }
 
+/**
+ * Check for the leaked strings
+ * at a specific index
+ * @param index of the first char to compare to
+ * @return the size of the leaked string if there's one,
+ *         0 if not
+ */
 int checkLeak(int index){
     int l;
     int arrSize = sizeof(leaked_strings) / sizeof(leaked_strings[0]);
@@ -135,6 +118,13 @@ int checkLeak(int index){
     return 0;
 }
 
+/**
+ * Copy this file stream content to another file stream
+ * @param start - the first index to copy from(inclusive)
+ * @param finish - the index to stop at(exclusive)
+ * @param copy - the file stream to copy to
+ * @return 0 for success
+ */
 int copy(int start, int finish, FILE* copy){
     char buffer[finish - start];
     fseek(fp, start, SEEK_SET);
@@ -144,6 +134,14 @@ int copy(int start, int finish, FILE* copy){
     return 0;
 }
 
+/**
+ * Copy a large file 512 bytes at a time
+ * @param start - first index(inclusive)
+ * @param finish - last index(exclusive)
+ * @param copyFile - the file stream to copy to
+ * @param stream to insert into
+ * @return 0 for success
+ */
 int copyLarge(int start, int finish, FILE* copyFile){
     int i;
     for (i = start; i < finish; i += BLOCKSIZE){
@@ -156,6 +154,13 @@ int copyLarge(int start, int finish, FILE* copyFile){
     return 0;
 }
 
+/**
+ * Write the last 2 blocks of null chars
+ * to the copy tar file
+ * @param nullNum - number of null chars to insert
+ * @param copy - the file stream to insert into
+ * @return 0 for success
+ */
 int writeNull(int nullNum, FILE *copy){
     char nullChar[nullNum];
     int i;
@@ -167,6 +172,13 @@ int writeNull(int nullNum, FILE *copy){
     return 0;
 }
 
+/**
+ * The main public function to copy a clean version
+ * of a corrupted tar file
+ * @param fileName - the corrupted tar file
+ * @param copyFileName - the file to copy into
+ * @return 0 if both file streams close successfully
+ */
 int cleanAndCopy(const char* fileName, const char* copyFileName){
     fp = fopen(fileName, "rb");
     FILE *fcopy;
