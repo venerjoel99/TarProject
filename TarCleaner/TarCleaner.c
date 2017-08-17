@@ -7,6 +7,7 @@
 #define false 1
 
 FILE *fp;
+FILE *fcopy;
 
 const char* leaked_strings[] = {
 "I:Closing tar\n",
@@ -125,12 +126,12 @@ int checkLeak(int index){
  * @param copy - the file stream to copy to
  * @return 0 for success
  */
-int copy(int start, int finish, FILE* copy){
+int copy(int start, int finish){
     char buffer[finish - start];
     fseek(fp, start, SEEK_SET);
     fread(buffer, 1, finish - start, fp);
-    fseek(copy, 0, SEEK_END);
-    fwrite(buffer, 1, finish - start, copy);
+    fseek(fcopy, 0, SEEK_END);
+    fwrite(buffer, 1, finish - start, fcopy);
     return 0;
 }
 
@@ -138,11 +139,10 @@ int copy(int start, int finish, FILE* copy){
  * Copy a large file 512 bytes at a time
  * @param start - first index(inclusive)
  * @param finish - last index(exclusive)
- * @param copyFile - the file stream to copy to
  * @param stream to insert into
  * @return 0 for success
  */
-int copyLarge(int start, int finish, FILE* copyFile){
+int copyLarge(int start, int finish){
     const int blockSize = BLOCKSIZE * 64;
     int i;
     for (i = start; i < finish; i += blockSize){
@@ -150,7 +150,7 @@ int copyLarge(int start, int finish, FILE* copyFile){
         if (finish - i < bufferSize){
             bufferSize = finish - i;
         }
-        copy(i, i + bufferSize, copyFile);
+        copy(i, i + bufferSize);
     }
     return 0;
 }
@@ -159,17 +159,16 @@ int copyLarge(int start, int finish, FILE* copyFile){
  * Write the last 2 blocks of null chars
  * to the copy tar file
  * @param nullNum - number of null chars to insert
- * @param copy - the file stream to insert into
  * @return 0 for success
  */
-int writeNull(int nullNum, FILE *copy){
+int writeNull(int nullNum){
     char nullChar[nullNum];
     int i;
     for (i=0; i < sizeof nullChar; i++){
         nullChar[i] = (char)0;
     }
-    fseek(copy, 0, SEEK_END);
-    fwrite(nullChar, 1, sizeof nullChar, copy);
+    fseek(fcopy, 0, SEEK_END);
+    fwrite(nullChar, 1, sizeof nullChar, fcopy);
     return 0;
 }
 
@@ -182,7 +181,6 @@ int writeNull(int nullNum, FILE *copy){
  */
 int cleanAndCopy(const char* fileName, const char* copyFileName){
     fp = fopen(fileName, "rb");
-    FILE *fcopy;
     fcopy = fopen(copyFileName, "wb");
     int size = findSize();
     int j;
@@ -204,16 +202,16 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
                 }
                 int leakLength = checkLeak(index);
                 end += leakLength;
-                copyLarge(startIndex, index, fcopy);
+                copyLarge(startIndex, index);
                 k = k + (index - startIndex);
                 startIndex = index + leakLength;
             }
         }
         else{
-            copyLarge(h.headerIndex, end, fcopy);
+            copyLarge(h.headerIndex, end);
         }
         j = end - 1;
     }
-    writeNull(BLOCKSIZE * 2, fcopy);
+    writeNull(BLOCKSIZE * 2);
     return fclose(fcopy) + fclose(fp);
 }
