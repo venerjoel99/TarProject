@@ -7,6 +7,7 @@
 #define false 1
 
 FILE *fp;
+unsigned int tarSize;
 FILE *fcopy;
 
 const char* leaked_strings[] = {
@@ -24,14 +25,11 @@ const char* leaked_strings[] = {
  */
 int findStr(const char *str, int index){
     fseek(fp, index, SEEK_SET);
-    int i;
-    for (i=0; i< strlen(str); i++){
-        char c = (char)fgetc(fp);
-        if (c!=str[i]) {
-            return 1;
-        }
-    }
-    return 0;
+    int size = strlen(str);
+    char c[size + 1];
+    fread(c, 1, size, fp);
+    c[size] = '\0';
+    return strcmp(c, str);
 }
 
 /**
@@ -82,18 +80,17 @@ header parseHeader(int index){
  * Check for a leak starting at beginning the tar header file
  * to the end of the file content
  * @param index of the file's tar header
- * @param tarSize physical size of the tar file in bytes
  * @return 0 if there's a leak, 1 if no leak
  */
-int leaking(int index, int tarSize){
+int leaking(int index){
     if (index < BLOCKSIZE && index > USTAR_INDEX){
         return true;
     }
     header h = parseHeader(index);
     int secondUstar = h.headerIndex + USTAR_INDEX + h.bufferSize + BLOCKSIZE;
-    if (secondUstar > tarSize){
+    if (secondUstar > (tarSize - (BLOCKSIZE*2))){
         secondUstar -= USTAR_INDEX;
-        if (secondUstar!=tarSize) return true;
+        if (secondUstar!=(tarSize - (BLOCKSIZE*2))) return true;
     }
     else if(checkUstar(secondUstar)!=0){
         return true;
@@ -170,13 +167,13 @@ int writeNull(int nullNum){
 int cleanAndCopy(const char* fileName, const char* copyFileName){
     fp = fopen(fileName, "rb");
     fcopy = fopen(copyFileName, "wb");
-    int size = findSize();
+    tarSize = findSize();
     int j;
-    for (j = 0; j < size; j++){
+    for (j = 0; j < tarSize; j++){
         if (checkUstar(j + USTAR_INDEX)!=0) continue;
         header h = parseHeader(j);
         int end = h.headerIndex + BLOCKSIZE + h.bufferSize;
-        if (leaking(h.headerIndex, size)==true){
+        if (leaking(h.headerIndex)==true){
             printf("%i Leaked file: %s\n", h.headerIndex, h.fileName);
             int k = 0;
             int startIndex = h.headerIndex;
@@ -184,7 +181,7 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
             int elements = end - h.headerIndex;
             while (k < elements){
                 index = startIndex;
-                while(checkLeak(index)<=0 && (index < end) && (index < size)){
+                while((index < tarSize) && (index < end) && checkLeak(index)<=0){
                     index+= BLOCKSIZE;
                 }
                 int leakLength = checkLeak(index);
