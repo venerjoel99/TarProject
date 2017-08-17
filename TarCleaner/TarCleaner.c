@@ -128,10 +128,10 @@ int checkLeak(int index){
  */
 int copy(int start, int finish){
     const int blockSize = BLOCKSIZE * 64;
+    char buffer[blockSize];
     int i;
     for (i = start; i < finish; i += blockSize){
         int bufferSize = blockSize;
-        char buffer[bufferSize];
         if (finish - i < bufferSize){
             bufferSize = finish - i;
         }
@@ -173,7 +173,6 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
     int size = findSize();
     int j;
     for (j = 0; j < size; j++){
-        if ((j % 1000000)==0) printf("%i MB\n", j / 1000000);
         if (checkUstar(j + USTAR_INDEX)!=0) continue;
         header h = parseHeader(j);
         int end = h.headerIndex + BLOCKSIZE + h.bufferSize;
