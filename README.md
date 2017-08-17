@@ -1,5 +1,5 @@
 # Tar Project
-An extremely basic tar file cleaner that takes out specific strings specified from the [Team Win Recovery issue 964](https://github.com/TeamWin/Team-Win-Recovery-Project/issues/964) from a corrupted tar file and makes a clean copy 
+An extremely basic tar file cleaner that takes out specific strings specified from a corrupted tar file and makes a clean copy.  This program was made in response to the [Team Win Recovery issue 964](https://github.com/TeamWin/Team-Win-Recovery-Project/issues/964), and the specific strings removed are specified at the very bottom of the thread.  This is not the only tar file cleaner project on GitHub, so make sure to also check out [BuildingAtom's Tar File Cleaner](https://github.com/BuildingAtom/CleanTwrpTar) as well.
 ### Basic Algorithm
   ---
 1. Check for USTAR indicator
