@@ -120,37 +120,25 @@ int checkLeak(int index){
 }
 
 /**
- * Copy this file stream content to another file stream
- * @param start - the first index to copy from(inclusive)
- * @param finish - the index to stop at(exclusive)
- * @param copy - the file stream to copy to
- * @return 0 for success
- */
-int copy(int start, int finish){
-    char buffer[finish - start];
-    fseek(fp, start, SEEK_SET);
-    fread(buffer, 1, finish - start, fp);
-    fseek(fcopy, 0, SEEK_END);
-    fwrite(buffer, 1, finish - start, fcopy);
-    return 0;
-}
-
-/**
  * Copy a large file 512 bytes at a time
  * @param start - first index(inclusive)
  * @param finish - last index(exclusive)
  * @param stream to insert into
  * @return 0 for success
  */
-int copyLarge(int start, int finish){
+int copy(int start, int finish){
     const int blockSize = BLOCKSIZE * 64;
     int i;
     for (i = start; i < finish; i += blockSize){
         int bufferSize = blockSize;
+        char buffer[bufferSize];
         if (finish - i < bufferSize){
             bufferSize = finish - i;
         }
-        copy(i, i + bufferSize);
+        fseek(fp, i, SEEK_SET);
+        fread(buffer, 1, bufferSize, fp);
+        fseek(fcopy, 0, SEEK_END);
+        fwrite(buffer, 1, bufferSize, fcopy);
     }
     return 0;
 }
@@ -202,13 +190,13 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
                 }
                 int leakLength = checkLeak(index);
                 end += leakLength;
-                copyLarge(startIndex, index);
+                copy(startIndex, index);
                 k = k + (index - startIndex);
                 startIndex = index + leakLength;
             }
         }
         else{
-            copyLarge(h.headerIndex, end);
+            copy(h.headerIndex, end);
         }
         j = end - 1;
     }
