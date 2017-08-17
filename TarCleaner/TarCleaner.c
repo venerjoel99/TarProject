@@ -143,9 +143,10 @@ int copy(int start, int finish, FILE* copy){
  * @return 0 for success
  */
 int copyLarge(int start, int finish, FILE* copyFile){
+    const int blockSize = BLOCKSIZE * 64;
     int i;
-    for (i = start; i < finish; i += BLOCKSIZE){
-        int bufferSize = BLOCKSIZE;
+    for (i = start; i < finish; i += blockSize){
+        int bufferSize = blockSize;
         if (finish - i < bufferSize){
             bufferSize = finish - i;
         }
@@ -199,7 +200,7 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
             while (k < elements){
                 index = startIndex;
                 while(checkLeak(index)<=0 && (index < end) && (index < size)){
-                    index++;
+                    index+=512;
                 }
                 int leakLength = checkLeak(index);
                 end += leakLength;
