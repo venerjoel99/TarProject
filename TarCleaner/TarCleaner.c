@@ -52,7 +52,7 @@ int findSize(){
  * @return 0 if match, 1 if not
  */
 int checkUstar(int index){
-    return findStr("ustar  ", index);
+    return findStr("ustar", index);
 
 }
 

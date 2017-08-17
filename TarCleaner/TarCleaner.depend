@@ -1,21 +1,11 @@
 # depslib dependency file v1.0
-1502763399 source:c:\users\84ven\desktop\tarcleaner\main.c
-	"TarCleaner.h"
-
-1502762012 c:\users\84ven\desktop\tarcleaner\tarcleaner.h
-	<stdio.h>
-
-1502763201 source:c:\users\84ven\desktop\tarcleaner\tarcleaner.c
-	"TarCleaner.h"
-	<stdio.h>
-
 1502939852 source:c:\users\84ven\desktop\tar\tarcleaner\main.c
 	"TarCleaner.h"
 
 1502936364 c:\users\84ven\desktop\tar\tarcleaner\tarcleaner.h
 	<stdio.h>
 
-1502940675 source:c:\users\84ven\desktop\tar\tarcleaner\tarcleaner.c
+1502945668 source:c:\users\84ven\desktop\tar\tarcleaner\tarcleaner.c
 	"TarCleaner.h"
 	<stdio.h>
 
