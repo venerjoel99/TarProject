@@ -200,7 +200,7 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
             while (k < elements){
                 index = startIndex;
                 while(checkLeak(index)<=0 && (index < end) && (index < size)){
-                    index+=512;
+                    index+= BLOCKSIZE;
                 }
                 int leakLength = checkLeak(index);
                 end += leakLength;
