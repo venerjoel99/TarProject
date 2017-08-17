@@ -188,8 +188,8 @@ int cleanAndCopy(const char* fileName, const char* copyFileName){
     int j;
     for (j = 0; j < size; j++){
         if ((j % 1000000)==0) printf("%i MB\n", j / 1000000);
-        if (checkUstar(j)!=0) continue;
-        header h = parseHeader(j - USTAR_INDEX);
+        if (checkUstar(j + USTAR_INDEX)!=0) continue;
+        header h = parseHeader(j);
         int end = h.headerIndex + BLOCKSIZE + h.bufferSize;
         if (leaking(h.headerIndex, size)==true){
             printf("%i Leaked file: %s\n", h.headerIndex, h.fileName);

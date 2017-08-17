@@ -1,7 +1,5 @@
 #include "TarCleaner.h"
 
-
-
 int main(){
     char file1[100];
     char file2[100];
