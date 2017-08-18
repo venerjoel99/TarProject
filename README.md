@@ -10,4 +10,3 @@ An extremely basic tar file cleaner that takes out specific strings specified fr
 ### Some present fixable problems
   ---
 1. Program doesn't remove any other strings other than the strings specified in TarCleaner.c
-2. It will always assume that the last file has a leak due to a lack of a following ustar file header with a ustar indicator, which affects program runtime only due to the leaked string checks through the last file regardless of whether it has leaked strings or not
