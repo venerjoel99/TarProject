@@ -127,14 +127,14 @@ int copy(int start, int finish){
     const int blockSize = BLOCKSIZE * 64;
     char buffer[blockSize];
     int i;
+    fseek(fp, start, SEEK_SET);
+    fseek(fcopy, 0, SEEK_END);
     for (i = start; i < finish; i += blockSize){
         int bufferSize = blockSize;
         if (finish - i < bufferSize){
             bufferSize = finish - i;
         }
-        fseek(fp, i, SEEK_SET);
         fread(buffer, 1, bufferSize, fp);
-        fseek(fcopy, 0, SEEK_END);
         fwrite(buffer, 1, bufferSize, fcopy);
     }
     return 0;
