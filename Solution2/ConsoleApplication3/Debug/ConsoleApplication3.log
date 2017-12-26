@@ -1,0 +1,6 @@
+﻿  Main.cpp
+c:\users\84ven\desktop\visual studio projects\solution2\consoleapplication3\main.cpp(16): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'time_t'
+  c:\users\84ven\desktop\visual studio projects\solution2\consoleapplication3\main.cpp(16): note: consider using '%lld' in the format string
+  c:\users\84ven\desktop\visual studio projects\solution2\consoleapplication3\main.cpp(16): note: consider using '%I64d' in the format string
+  ConsoleApplication3.vcxproj -> C:\Users\84ven\Desktop\Visual Studio Projects\Solution2\Debug\TarCleaner.exe
+  ConsoleApplication3.vcxproj -> C:\Users\84ven\Desktop\Visual Studio Projects\Solution2\Debug\TarCleaner.pdb (Partial PDB)
