@@ -10,3 +10,6 @@ An extremely basic tar file cleaner that takes out specific strings specified fr
 ### Some present fixable problems
   ---
 1. Program doesn't remove any other strings other than the strings specified in TarCleaner.c
+### Notes
+  ---
+1. There are 2 executables are located in the Executables folder. SmallerTarCleaner is written in C and cleans files up to 2GB only. BigTarCleaner is written in C++ and can be used for files bigger than 2GB.
