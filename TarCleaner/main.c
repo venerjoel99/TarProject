@@ -12,5 +12,7 @@ int main(){
     cleanAndCopy(file1, file2);
     time_t b = time(0);
     printf("Clean time: %i seconds\n", b - a);
+    printf("Enter 'exit' to finish\n");
+    scanf("%s", file1);
     return 0;
 }
