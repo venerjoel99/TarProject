@@ -13,3 +13,4 @@ An extremely basic tar file cleaner that takes out specific strings specified fr
 ### Notes
   ---
 1. There are 2 executables are located in the Executables folder. SmallerTarCleaner is written in C and cleans files up to 2GB only. BigTarCleaner is written in C++ and can be used for files bigger than 2GB.
+2. BigTarCleaner requires [Microsoft Visual C++ Redistributable for Visual Studio 2017](https://go.microsoft.com/fwlink/?LinkId=746572)
