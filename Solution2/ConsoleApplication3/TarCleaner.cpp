@@ -40,6 +40,7 @@ int TarCleaner::findStr(const char *str, Integer index) {
 	fread(c, 1, size, in_file);
 	c[size] = '\0';
 	int result = strcmp(c, str);
+	delete[] c;
 	return result;
 }
 
